@@ -1,1 +1,2 @@
 # DwarfEngine - mini Nova
+This is a mini project that goes hand to hand with Nova and my journey to mastering C++. - It will be a much more lightweight project that is designed to show my progress in future subsystems for Novas engine and renderer. I will explore a lot of new topics and refine older ones in the DwarfEngine but trying to do so without exposing the code to as many external libraries as possible.
