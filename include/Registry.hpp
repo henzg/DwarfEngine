@@ -8,45 +8,51 @@
 #include <any>
 #include <typeinfo>
 #include <typeindex>
+#include "Log.hpp"
+#include <format>
 
 namespace Dwarf {
 
     class Registry {
       public:
-        template <typename T>
+        template <typename T, typename MapType>
         struct View {
-            View(const std::unordered_map<EntityID, std::any>* componentMap)
-                : componentMap(componentMap) {}
+
+            View(MapType* map) : m_Map(map) {}
             ~View() = default;
+
+            template <typename IteratorType>
             struct Iterator {
-                Iterator(std::unordered_map<EntityID, std::any>::const_iterator it) : it(it) {}
+
+                Iterator(IteratorType it) : it(it) {}
                 ~Iterator() = default;
-                std::pair<EntityID, const T&> operator*() const {
-                    return std::pair<EntityID, const T&> {it->first,
-                                                          *std::any_cast<T>(&it->second)};
+                std::pair<EntityID, T&> operator*() const {
+                    return std::pair<EntityID, T&> {it->first, *std::any_cast<T>(&it->second)};
                 }
                 Iterator& operator++() {
                     ++it;
                     return *this;
                 }
-                bool operator!=(const Iterator& other) const { return it != other.it; }
+                bool operator!=(Iterator& other) const { return it != other.it; }
 
-                std::unordered_map<EntityID, std::any>::const_iterator it;
+                IteratorType it;
             };
-            Iterator begin() {
-                if (!componentMap)
+            using MyIterator = Iterator<typename MapType::iterator>;
+
+            MyIterator begin() {
+                if (!m_Map)
                     return end();
-                return Iterator {componentMap->begin()};
+                return MyIterator {m_Map->begin()};
             }
-            Iterator end() {
-                if (!componentMap) {
-                    static const std::unordered_map<EntityID, std::any> empty;
-                    return Iterator {empty.end()};
+            MyIterator end() {
+                if (!m_Map) {
+                    static MapType empty;
+                    return MyIterator {empty.end()};
                 }
-                return Iterator {componentMap->end()};
+                return MyIterator {m_Map->end()};
             }
 
-            const std::unordered_map<EntityID, std::any>* componentMap;
+            MapType* m_Map;
         };
 
       public:
@@ -74,11 +80,18 @@ namespace Dwarf {
         }
 
         template <typename T>
-        View<T> view() {
-            auto const it = m_Components.find(std::type_index(typeid(T)));
+        View<T, std::unordered_map<EntityID, std::any>> view() {
+            auto it = m_Components.find(std::type_index(typeid(T)));
             if (it != m_Components.end())
-                return View<T> {&it->second};
-            return View<T> {nullptr};
+                return {&it->second};
+            return {nullptr};
+        }
+        template <typename T>
+        View<T, const std::unordered_map<EntityID, std::any>> view() const {
+            auto it = m_Components.find(std::type_index(typeid(T)));
+            if (it != m_Components.end())
+                return {&it->second};
+            return {nullptr};
         }
 
       private:

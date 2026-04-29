@@ -11,4 +11,8 @@ namespace Dwarf {
         float hp, maxHp;
     };
 
+    struct VelocityComponent {
+        float dx, dy;
+    };
+
 } // namespace Dwarf

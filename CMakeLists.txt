@@ -13,7 +13,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_executable(DwarfEngine
         src/main.cpp
         src/Engine.cpp
-        src/Registry.cpp)
+        src/Registry.cpp
+        src/Log.cpp
+        src/Game.cpp)
 
 target_include_directories(DwarfEngine PRIVATE
     ${CMAKE_SOURCE_DIR}/include)

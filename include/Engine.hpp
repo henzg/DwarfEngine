@@ -2,11 +2,13 @@
 #include "Registry.hpp"
 #include "Dispatcher.hpp"
 #include "Event.hpp"
+#include "Log.hpp"
 
 namespace Dwarf {
     class Engine {
       public:
         Engine() {
+            LOG_INFO("Dwarf Engine Spinning Up!");
             Subscribe<Dwarf::WindowCloseEvent>(
                 [this](const Dwarf::WindowCloseEvent& e) { m_Running = false; });
         }
@@ -29,7 +31,7 @@ namespace Dwarf {
         }
 
         template <typename T>
-        Registry::View<T> View() {
+        auto View() {
             return m_ECS.view<T>();
         }
 
@@ -37,12 +39,21 @@ namespace Dwarf {
 
         void setRunning(bool running) { m_Running = running; }
 
+        void SetUpdateCallback(std::function<void(float)> callback) {
+            m_UpdateCallback = callback;
+        };
+
       private:
         Registry m_ECS;
         Dispatcher m_Dispatcher;
 
         bool m_Running = true;
         int m_KeyCode;
+
+        float m_DeltaTime;
+        float m_FPS = 60;
+
+        std::function<void(float)> m_UpdateCallback;
     };
 
 } // namespace Dwarf
