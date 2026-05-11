@@ -1,8 +1,8 @@
 #pragma once
+#include "Dwarf.hpp"
 #include "Registry.hpp"
 #include "Dispatcher.hpp"
 #include "Event.hpp"
-#include "Log.hpp"
 
 namespace Dwarf {
     class Engine {
@@ -30,6 +30,8 @@ namespace Dwarf {
             m_ECS.addComponent<T>(owner, component);
         }
 
+        void DeleteComponent(const EntityID& owner) { m_ECS.destroyEntity(owner); }
+
         template <typename T>
         auto View() {
             return m_ECS.view<T>();
@@ -47,7 +49,9 @@ namespace Dwarf {
         Registry m_ECS;
         Dispatcher m_Dispatcher;
 
-        bool m_Running = true;
+        bool m_Running         = true;
+        bool m_CMDInputEnabled = true;
+        std::string m_CMDInputStr;
         int m_KeyCode;
 
         float m_DeltaTime;

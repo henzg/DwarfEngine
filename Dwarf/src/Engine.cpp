@@ -17,19 +17,22 @@ namespace Dwarf {
             auto currentTime = std::chrono::high_resolution_clock::now();
             m_DeltaTime      = std::chrono::duration<float>(currentTime - lastTime).count();
 
-            // select()
-            fd_set readfds;
-            FD_ZERO(&readfds);              // clear the set
-            FD_SET(STDIN_FILENO, &readfds); // watch stdin
+            if (m_CMDInputEnabled) {
+                // select() - for input watch
+                fd_set readfds;
+                FD_ZERO(&readfds);              // clear the set
+                FD_SET(STDIN_FILENO, &readfds); // watch stdin
 
-            timeval timeout {0, 0};
+                timeval timeout {0, 0};
 
-            int result = select(1, &readfds, nullptr, nullptr, &timeout);
-            if (result > 0) {
-                std::cin >> m_KeyCode;
-                Emit(KeyPressedEvent {m_KeyCode});
+                int result = select(1, &readfds, nullptr, nullptr, &timeout);
+                if (result > 0) {
+                    std::getline(std::cin, m_CMDInputStr);
+                    Emit(LineEnteredEvent {m_CMDInputStr});
+                }
             }
 
+            // 60FPS control
             if (m_DeltaTime < 1.0f / m_FPS) {
                 std::this_thread::sleep_for(std::chrono::duration<float>(1.0f / m_FPS) -
                                             std::chrono::duration<float>(m_DeltaTime));

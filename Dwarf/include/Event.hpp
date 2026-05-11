@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace Dwarf {
     struct KeyPressedEvent {
         int keyCode;
@@ -10,4 +12,8 @@ namespace Dwarf {
     };
 
     struct WindowCloseEvent {};
+
+    struct LineEnteredEvent {
+        std::string input;
+    };
 } // namespace Dwarf
